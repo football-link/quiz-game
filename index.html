@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Простая викторина</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1f2937, #111827);
+      color: #f9fafb;
+      font-family: Arial, sans-serif;
+    }
+
+    .quiz {
+      width: min(90vw, 600px);
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 30px 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    #question {
+      font-size: 1.2rem;
+      margin: 20px 0;
+      line-height: 1.5;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer-btn {
+      background: #374151;
+      border: 1px solid #4b5563;
+      color: white;
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .answer-btn:hover {
+      background: #4b5563;
+      transform: translateY(-1px);
+    }
+
+    #next-btn, #restart-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #10b981;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    #next-btn:hover, #restart-btn:hover {
+      background: #059669;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz">
+    <h1>Викторина</h1>
+    <div id="question-box">
+      <p id="question"></p>
+      <div id="answers" class="answers"></div>
+      <button id="next-btn" class="hidden">Следующий вопрос</button>
+    </div>
+    <div id="result"></div>
+    <button id="restart-btn" class="hidden">Начать заново</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: 'Какой язык используется для создания структуры веб-страницы?',
+        answers: [
+          'JavaScript',
+          'HTML',
+          'CSS',
+          'Python'
+        ],
+        correct: 1
+      },
+      {
+        question: 'Какая команда создает новый проект React?',
+        answers: [
+          'npm create react-app',
+          'react new app',
+          'npx create-react-app',
+          'install react'
+        ],
+        correct: 2
+      },
+      {
+        question: 'Какой цвет получится при смешении синего и желтого?',
+        answers: [
+          'Красный',
+          'Зеленый',
+          'Фиолетовый',
+          'Черный'
+        ],
+        correct: 1
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById('question');
+    const answersEl = document.getElementById('answers');
+    const nextBtn = document.getElementById('next-btn');
+    const resultEl = document.getElementById('result');
+    const restartBtn = document.getElementById('restart-btn');
+
+    function showQuestion() {
+      const question = questions[currentQuestionIndex];
+      questionEl.textContent = question.question;
+      answersEl.innerHTML = '';
+      nextBtn.classList.add('hidden');
+
+      question.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.className = 'answer-btn';
+        button.textContent = answer;
+        button.addEventListener('click', () => checkAnswer(index, button));
+        answersEl.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selectedIndex, selectedButton) {
+      const correctIndex = questions[currentQuestionIndex].correct;
+      const buttons = document.querySelectorAll('.answer-btn');
+
+      buttons.forEach((btn) => {
+        btn.disabled = true;
+        if (Number(btn.textContent) === undefined) {
+          // noop
+        }
+      });
+
+      if (selectedIndex === correctIndex) {
+        score++;
+        selectedButton.style.background = '#10b981';
+      } else {
+        selectedButton.style.background = '#ef4444';
+        buttons[correctIndex].style.background = '#10b981';
+      }
+
+      nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('question-box').classList.add('hidden');
+      resultEl.style.display = 'block';
+      resultEl.textContent = `Вы ответили правильно на ${score} из ${questions.length} вопросов!`;
+      restartBtn.classList.remove('hidden');
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      document.getElementById('question-box').classList.remove('hidden');
+      resultEl.style.display = 'none';
+      restartBtn.classList.add('hidden');
+      showQuestion();
+    }
+
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', restartQuiz);
+
+    showQuestion();
+  </script>
+</body>
+</html>
